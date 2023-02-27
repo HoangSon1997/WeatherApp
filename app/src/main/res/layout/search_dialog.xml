@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:paddingTop="20dp"
+    android:paddingBottom="20dp"
+    android:paddingStart="10dp"
+    android:paddingEnd="10dp"
+    android:layout_margin="16dp">
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/city_edt_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="City"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:helperText="Required *"
+        app:helperTextTextColor="@color/red"
+        app:startIconDrawable="@drawable/ic_city"
+        app:endIconMode="clear_text">
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"/>
+    </com.google.android.material.textfield.TextInputLayout>
+
+    <com.google.android.material.textfield.TextInputLayout
+        android:id="@+id/days_edt_dialog"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Days"
+        style="@style/Widget.MaterialComponents.TextInputLayout.OutlinedBox"
+        app:startIconDrawable="@drawable/ic_daily"
+        app:endIconMode="clear_text">
+        <com.google.android.material.textfield.TextInputEditText
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textColor="@color/black"
+            android:inputType="number"/>
+    </com.google.android.material.textfield.TextInputLayout>
+</LinearLayout>
