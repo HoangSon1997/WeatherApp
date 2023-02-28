@@ -1,10 +1,16 @@
 package com.example.weather.activity
+
+import android.content.pm.PackageManager
+import android.location.Address
+import android.location.Geocoder
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
 import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.core.app.ActivityCompat
+import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
 import com.example.weather.R
 import com.example.weather.adapter.ViewPagerAdapter
@@ -14,12 +20,17 @@ import com.example.weather.fragment.DailyFragment
 import com.example.weather.fragment.TodayFragment
 import com.example.weather.utils.NetworkHelper
 import com.example.weather.utils.PreferenceHelper
+import com.google.android.gms.location.FusedLocationProviderClient
+import com.google.android.gms.location.LocationServices
+import java.util.*
+import java.util.jar.Manifest
 
 class MainActivity : AppCompatActivity(), SearchDialog.SaveListener {
 
     private lateinit var binding: ActivityMainBinding
     private val TAG = "sondeptrai"
-
+    private lateinit var mFunsedLocationProviderClient: FusedLocationProviderClient
+    private val REQUEST_CODE = 100;
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,8 +80,9 @@ class MainActivity : AppCompatActivity(), SearchDialog.SaveListener {
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        when(item.itemId) {
+        when (item.itemId) {
             R.id.action_search -> launchDialog()
+            R.id.action_map -> launchMap()
         }
         return super.onOptionsItemSelected(item)
     }
@@ -97,11 +109,68 @@ class MainActivity : AppCompatActivity(), SearchDialog.SaveListener {
 
     private fun passDataToViewPager(city: String, days: String) {
         for (i in 0..1) {
-            when(val frag = getFrag(i)) {
+            when (val frag = getFrag(i)) {
                 is TodayFragment -> frag.show(city)
                 is DailyFragment -> frag.show(city, days)
             }
         }
+    }
+
+    private fun passDataToViewPager(lat: String, lon: String, address: String) {
+        for (i in 0..1) {
+            when (val frag = getFrag(i)) {
+                is TodayFragment -> frag.show(lat, lon, address)
+                is DailyFragment -> frag.show(lat, lon, address)
+            }
+        }
+    }
+
+    private fun launchMap() {
+        if (!NetworkHelper.isNetworkAvailable(this)) {
+            Toast.makeText(this, "No internet", Toast.LENGTH_LONG).show()
+            return
+        }
+
+        mFunsedLocationProviderClient = LocationServices.getFusedLocationProviderClient(this)
+
+        if (ContextCompat.checkSelfPermission(
+                this,
+                android.Manifest.permission.ACCESS_FINE_LOCATION
+            ) == PackageManager.PERMISSION_GRANTED
+        ) {
+            mFunsedLocationProviderClient.getLastLocation().addOnSuccessListener {
+                if (it != null) {
+                    val geocoder = Geocoder(this, Locale.getDefault())
+                    val address = geocoder.getFromLocation(it.latitude, it.longitude, 1)
+                    Log.d(TAG, "launchMap: " + (address!![0].latitude) + "-" + address[0].longitude + "-" + address!![0].getAddressLine(0))
+
+                    passDataToViewPager(address!![0].latitude.toString(), address[0].longitude.toString(), address!![0].getAddressLine(0))
+                }
+            }
+        } else {
+            askPermission()
+        }
+    }
+
+    private fun askPermission() {
+        ActivityCompat.requestPermissions(
+            this,
+            arrayOf(android.Manifest.permission.ACCESS_FINE_LOCATION),
+            REQUEST_CODE
+        )
+    }
+
+    override fun onRequestPermissionsResult(
+        requestCode: Int,
+        permissions: Array<out String>,
+        grantResults: IntArray
+    ) {
+        if (requestCode == REQUEST_CODE) {
+            if (grantResults.size > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                launchMap()
+            }
+        }
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
     }
 
 }

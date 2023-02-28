@@ -18,6 +18,7 @@ import com.example.weather.databinding.FragmentDailyBinding
 import com.example.weather.entity.Weather
 import com.example.weather.utils.ApiKey
 import com.example.weather.utils.PreferenceHelper
+import com.example.weather.utils.StringHelper
 import com.squareup.picasso.Picasso
 import org.json.JSONException
 import org.json.JSONObject
@@ -74,7 +75,7 @@ class DailyFragment : Fragment() {
                     binding.date.text = day1
                     val weatherArr1 = obj1.getJSONArray("weather")
                     val weatherObj1 = weatherArr1.getJSONObject(0)
-                    binding.condition.text = weatherObj1.getString("description")
+                    binding.condition.text = StringHelper.getUpperCase(weatherObj1.getString("description"))
                     Picasso.with(context).load(ApiKey.getIconUrl(weatherObj1.getString("icon"))).into(binding.weatherResource)
                     val tempObj1 = obj1.getJSONObject("temp")
                     var temp1 = (java.lang.Double.valueOf(tempObj1.getString("day").toString())).toInt() - 273
@@ -99,7 +100,7 @@ class DailyFragment : Fragment() {
 
                         val temp = "$min°C/$max°C"
 
-                        val weather = Weather(day, desc, icon, temp)
+                        val weather = Weather(day, StringHelper.getUpperCase(desc), icon, temp)
                         mWeatherList.add(weather)
                     }
                     mAdapter.notifyDataSetChanged()
@@ -138,5 +139,38 @@ class DailyFragment : Fragment() {
             setRecycleView()
             setData(city, days)
         }
+    }
+
+    fun show(lat: String, lon: String, address: String) {
+        val pref = PreferenceHelper.getPref(requireContext(), PreferenceHelper.PREF_KEY)
+        val daysPref = pref.getString(PreferenceHelper.DAYS_KEY, "16")
+
+        val requestQueue = Volley.newRequestQueue(context)
+        val url = ApiKey.getForecastUrlLocale(lat, lon, daysPref)
+        val stringRequest =
+            StringRequest(Request.Method.GET, url, object : Response.Listener<String> {
+                override fun onResponse(response: String?) {
+                    try {
+                        Log.d("sondeptrai", "onResponse: " + response)
+                        val obj = JSONObject(response)
+                        val cityObj = obj.getJSONObject("city")
+                        // City
+                        val city = cityObj.getString("name")
+                        if (city != null && daysPref != null) {
+                            setRecycleView()
+                            setData(city, daysPref)
+                        }
+
+
+                    } catch (e: JSONException) {
+                        throw RuntimeException(e);
+                    }
+                }
+            }, object : Response.ErrorListener {
+                override fun onErrorResponse(error: VolleyError?) {
+                    Log.e(context.toString(), "onErrorResponse: " + error.toString())
+                }
+            })
+        requestQueue.add(stringRequest)
     }
 }
