@@ -45,15 +45,6 @@
                 android:layout_marginTop="16dp"
                 android:textSize="16sp" />
 
-            <ImageView
-                android:id="@+id/weather_resource"
-                android:layout_width="100dp"
-                android:layout_height="100dp"
-                android:src="@drawable/art_light_rain"
-                android:layout_alignParentEnd="true"
-                android:layout_alignParentBottom="true"
-                android:padding="8dp"/>
-
             <TextView
                 android:id="@+id/temp_condition"
                 android:layout_width="wrap_content"

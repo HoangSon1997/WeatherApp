@@ -12,44 +12,101 @@
     app:cardBackgroundColor="@color/white">
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="horizontal">
         <ImageView
             android:id="@+id/weather_img"
             android:layout_width="50dp"
             android:layout_height="50dp"
-            android:src="@drawable/art_light_rain"/>
+            android:src="@drawable/art_light_rain"
+            android:layout_gravity="center"/>
 
-        <TextView
-            android:id="@+id/day"
+        <LinearLayout
             android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_weight="1"
-            android:gravity="center"
-            tools:text="Sat"
-            android:layout_marginLeft="14dp"
-            android:layout_marginRight="14dp"
-            android:textSize="18sp"
-            android:textColor="@color/black"/>
+            android:layout_height="wrap_content"
+            android:orientation="vertical"
+            android:layout_weight="1">
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:id="@+id/date"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="1"
+                    android:gravity="center"
+                    tools:text="Sat"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginRight="14dp"
+                    android:textSize="18sp"
+                    android:textColor="@color/black"/>
 
-        <TextView
-            android:id="@+id/temp"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_weight="1.5"
-            android:layout_marginEnd="14dp"
-            android:gravity="center"
-            tools:text="20-32°C"
-            android:textColor="@color/black"/>
+                <TextView
+                    android:id="@+id/temp"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="4"
+                    android:layout_marginEnd="14dp"
+                    android:gravity="center"
+                    tools:text="20°C-32°C"
+                    android:textColor="@color/black"/>
 
-        <TextView
-            android:id="@+id/desc"
-            android:layout_width="0dp"
-            android:layout_height="60dp"
-            android:layout_weight="2.5"
-            android:gravity="center"
-            android:layout_alignParentEnd="true"
-            tools:text="Condition"
-            android:textColor="@color/black"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:gravity="center"
+                    android:text="Day: "
+                    android:layout_weight="1"
+                    android:layout_marginLeft="14dp"
+                    android:textSize="18sp"
+                    android:textColor="@color/black"/>
+
+                <TextView
+                    android:id="@+id/day_status"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="4"
+                    android:gravity="center"
+                    tools:text="Nắng có sương mờ"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginRight="14dp"
+                    android:textSize="18sp"
+                    android:textColor="@color/black"/>
+            </LinearLayout>
+
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:orientation="horizontal">
+                <TextView
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:gravity="center"
+                    android:text="Night: "
+                    android:layout_weight="1"
+                    android:layout_marginLeft="14dp"
+                    android:textSize="18sp"
+                    android:textColor="@color/black"/>
+
+                <TextView
+                    android:id="@+id/night_status"
+                    android:layout_width="0dp"
+                    android:layout_height="60dp"
+                    android:layout_weight="4"
+                    android:gravity="center"
+                    android:text="Trời quang"
+                    android:layout_marginLeft="14dp"
+                    android:layout_marginRight="14dp"
+                    android:textSize="18sp"
+                    android:textColor="@color/black"/>
+            </LinearLayout>
+        </LinearLayout>
     </LinearLayout>
 </androidx.cardview.widget.CardView>

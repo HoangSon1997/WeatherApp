@@ -26,6 +26,7 @@ import java.text.SimpleDateFormat
 import java.util.*
 
 class DailyFragment : Fragment() {
+    val TAG = "sondeptrai"
     var mWeatherList: ArrayList<Weather> = ArrayList()
     private lateinit var mAdapter: DailyAdapter
 
@@ -38,11 +39,11 @@ class DailyFragment : Fragment() {
         binding = FragmentDailyBinding.inflate(inflater, container, false)
 
         val pref = PreferenceHelper.getPref(requireContext(), PreferenceHelper.PREF_KEY)
-        val cityPref = pref.getString(PreferenceHelper.CITY_KEY, "Hanoi")
-        val daysPref = pref.getString(PreferenceHelper.DAYS_KEY, "16")
-        if (cityPref != null && daysPref != null) {
+        val cityKeyPref = pref.getString(PreferenceHelper.CITY_KEY, "353412")
+        val cityNamePref = pref.getString(PreferenceHelper.CITY_NAME, "Hanoi")
+        if (cityKeyPref != null && cityNamePref != null) {
             setRecycleView()
-            setData(cityPref, daysPref)
+            setData(cityKeyPref, cityNamePref)
         }
 
         return binding.root
@@ -52,55 +53,69 @@ class DailyFragment : Fragment() {
         super.onCreate(savedInstanceState)
     }
 
-    private fun setData(cityPref: String?, daysPref: String) {
+    private fun setData(cityKey: String?, cityName: String) {
+        binding.city.text = cityName
         val requestQueue = Volley.newRequestQueue(context)
-        val url = ApiKey.getForecastUrl(cityPref, daysPref)
+        val url = ApiKey.get5Day(cityKey)
         val stringRequest = StringRequest(Request.Method.GET, url, object : Response.Listener<String> {
             override fun onResponse(response: String?) {
                 try {
+                    Log.d(TAG, "onResponse: DaiLyFragment" + response)
                     mWeatherList.clear()
 
-                    val obj = JSONObject(response)
+                    val objAll = JSONObject(response)
 
-                    val cityObj = obj.getJSONObject("city")
-                    binding.city.setText(cityObj.getString("name"))
+                    // item 0
+                    // Text condition
+                    val headObj = objAll.getJSONObject("Headline")
+                    binding.condition.setText(headObj.getString("Text"))
 
-                    val listArr = obj.getJSONArray("list")
+                    val listArr = objAll.getJSONArray("DailyForecasts")
 
-                    val obj1 = listArr.getJSONObject(1)
-                    val dayMilis1 = java.lang.Long.valueOf(obj1.getString("dt"))
-                    val date1 = Date(dayMilis1 * 1000L)
-                    val format1 = SimpleDateFormat("EEEE dd MMM yyyy")
-                    val day1 = format1.format(date1)
-                    binding.date.text = day1
-                    val weatherArr1 = obj1.getJSONArray("weather")
-                    val weatherObj1 = weatherArr1.getJSONObject(0)
-                    binding.condition.text = StringHelper.getUpperCase(weatherObj1.getString("description"))
-                    Picasso.with(context).load(ApiKey.getIconUrl(weatherObj1.getString("icon"))).into(binding.weatherResource)
-                    val tempObj1 = obj1.getJSONObject("temp")
-                    var temp1 = (java.lang.Double.valueOf(tempObj1.getString("day").toString())).toInt() - 273
+                    val obj0 = listArr.getJSONObject(0)
+                    val dayMilis0 = java.lang.Long.valueOf(obj0.getString("EpochDate"))
+                    val date0 = Date(dayMilis0 * 1000L)
+                    val format0 = SimpleDateFormat("EEEE dd MMM yyyy")
+                    val day0 = format0.format(date0)
+                    binding.date.text = day0
 
-                    binding.tempCondition.text = "$temp1°C"
+                    val tempObj0 = obj0.getJSONObject("Temperature")
+                    val minObj0 = tempObj0.getJSONObject("Minimum")
+                    val maxObj0 = tempObj0.getJSONObject("Maximum")
 
-                    for (i in 2..listArr.length() - 1) {
+                    val min0 = ((java.lang.Double.valueOf(minObj0.getString("Value").toString()).toInt() - 32) / 1.8).toInt()
+                    val max0 = ((java.lang.Double.valueOf(maxObj0.getString("Value").toString()).toInt() - 32) / 1.8).toInt()
+
+                    binding.tempCondition.text = "$min0°C/$max0°C"
+
+                    for (i in 1..listArr.length() - 1) {
                         val obj = listArr.getJSONObject(i)
-                        val weatherArr = obj.getJSONArray("weather")
-                        val weatherObj = weatherArr.getJSONObject(0)
-                        val icon = weatherObj.getString("icon")
-                        val desc = weatherObj.getString("description")
 
-                        val dayMilis = java.lang.Long.valueOf(obj.getString("dt"))
+                        val dayMilis = java.lang.Long.valueOf(obj.getString("EpochDate"))
                         val date = Date(dayMilis * 1000L)
                         val format = SimpleDateFormat("EEE")
                         val day = format.format(date)
 
-                        val tempObj = obj.getJSONObject("temp")
-                        var min = (java.lang.Double.valueOf(tempObj.getString("min").toString())).toInt() - 273
-                        var max = (java.lang.Double.valueOf(tempObj.getString("max").toString())).toInt() -273
+                        val tempObj = obj.getJSONObject("Temperature")
+                        val minObj = tempObj.getJSONObject("Minimum")
+                        val maxObj = tempObj.getJSONObject("Maximum")
+
+                        val min = ((java.lang.Double.valueOf(minObj.getString("Value").toString()).toInt() - 32) / 1.8).toInt()
+                        val max = ((java.lang.Double.valueOf(maxObj.getString("Value").toString()).toInt() - 32) / 1.8).toInt()
 
                         val temp = "$min°C/$max°C"
 
-                        val weather = Weather(day, StringHelper.getUpperCase(desc), icon, temp)
+                        val dayObj = obj.getJSONObject("Day")
+                        val nightObj = obj.getJSONObject("Night")
+
+                        val dayStatus = dayObj.getString("IconPhrase")
+                        val nightStatus = nightObj.getString("IconPhrase")
+                        var icon = dayObj.getString("Icon")
+                        if (icon.length == 1) {
+                            icon = "0" + icon
+                        }
+
+                        val weather = Weather(day, icon, temp, dayStatus, nightStatus)
                         mWeatherList.add(weather)
                     }
                     mAdapter.notifyDataSetChanged()
@@ -117,8 +132,9 @@ class DailyFragment : Fragment() {
                 val pref = PreferenceHelper.getPref(requireContext(), PreferenceHelper.PREF_KEY)
                 val editor = pref.edit()
                 editor.apply {
-                    putString(PreferenceHelper.CITY_KEY, "Hanoi")
-                    putString(PreferenceHelper.DAYS_KEY, "16")
+                    putString(PreferenceHelper.CITY_KEY, "353412")
+                    putString(PreferenceHelper.CITY_NAME, "Hanoi")
+                    putString(PreferenceHelper.COUNTRY_NAME, "VN")
                 }.apply()
             }
         })
@@ -133,44 +149,44 @@ class DailyFragment : Fragment() {
         binding.recyclerview.layoutManager = LinearLayoutManager(context)
     }
 
-    fun show(city: String, days: String) {
-        if (city != null && days != null) {
-            Log.d("sondeptrai", "show: " + city + days)
+    fun show(cityKey: String, cityName: String) {
+        if (cityName != null && cityKey != null) {
+            Log.d("sondeptrai", "show: " + cityName + cityKey)
             setRecycleView()
-            setData(city, days)
+            setData(cityName, cityKey)
         }
     }
 
-    fun show(lat: String, lon: String, address: String) {
-        val pref = PreferenceHelper.getPref(requireContext(), PreferenceHelper.PREF_KEY)
-        val daysPref = pref.getString(PreferenceHelper.DAYS_KEY, "16")
-
-        val requestQueue = Volley.newRequestQueue(context)
-        val url = ApiKey.getForecastUrlLocale(lat, lon, daysPref)
-        val stringRequest =
-            StringRequest(Request.Method.GET, url, object : Response.Listener<String> {
-                override fun onResponse(response: String?) {
-                    try {
-                        Log.d("sondeptrai", "onResponse: " + response)
-                        val obj = JSONObject(response)
-                        val cityObj = obj.getJSONObject("city")
-                        // City
-                        val city = cityObj.getString("name")
-                        if (city != null && daysPref != null) {
-                            setRecycleView()
-                            setData(city, daysPref)
-                        }
-
-
-                    } catch (e: JSONException) {
-                        throw RuntimeException(e);
-                    }
-                }
-            }, object : Response.ErrorListener {
-                override fun onErrorResponse(error: VolleyError?) {
-                    Log.e(context.toString(), "onErrorResponse: " + error.toString())
-                }
-            })
-        requestQueue.add(stringRequest)
-    }
+//    fun show(lat: String, lon: String, address: String) {
+//        val pref = PreferenceHelper.getPref(requireContext(), PreferenceHelper.PREF_KEY)
+//        val daysPref = pref.getString(PreferenceHelper.DAYS_KEY, "16")
+//
+//        val requestQueue = Volley.newRequestQueue(context)
+//        val url = ApiKey.getForecastUrlLocale(lat, lon, daysPref)
+//        val stringRequest =
+//            StringRequest(Request.Method.GET, url, object : Response.Listener<String> {
+//                override fun onResponse(response: String?) {
+//                    try {
+//                        Log.d("sondeptrai", "onResponse: " + response)
+//                        val obj = JSONObject(response)
+//                        val cityObj = obj.getJSONObject("city")
+//                        // City
+//                        val city = cityObj.getString("name")
+//                        if (city != null && daysPref != null) {
+//                            setRecycleView()
+//                            setData(city, daysPref)
+//                        }
+//
+//
+//                    } catch (e: JSONException) {
+//                        throw RuntimeException(e);
+//                    }
+//                }
+//            }, object : Response.ErrorListener {
+//                override fun onErrorResponse(error: VolleyError?) {
+//                    Log.e(context.toString(), "onErrorResponse: " + error.toString())
+//                }
+//            })
+//        requestQueue.add(stringRequest)
+//    }
 }

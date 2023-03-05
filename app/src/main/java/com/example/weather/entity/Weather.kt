@@ -1,15 +1,23 @@
 package com.example.weather.entity
 
 class Weather {
-    var day: String? = null
-    var status: String? = null
+    var date: String? = null
     var icon: String? = null
     var temp: String? = null
+    var day_status: String? = null
+    var night_status: String? = null
 
-    constructor(day: String?, status: String?, icon: String?, min: String?) {
-        this.day = day
-        this.status = status
+    constructor(
+        date: String?,
+        icon: String?,
+        temp: String?,
+        day_status: String?,
+        night_status: String?
+    ) {
+        this.date = date
         this.icon = icon
-        this.temp = min
+        this.temp = temp
+        this.day_status = day_status
+        this.night_status = night_status
     }
 }

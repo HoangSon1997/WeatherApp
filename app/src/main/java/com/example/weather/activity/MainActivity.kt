@@ -12,16 +12,25 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import androidx.viewpager2.widget.ViewPager2
+import com.android.volley.Request
+import com.android.volley.Response
+import com.android.volley.VolleyError
+import com.android.volley.toolbox.StringRequest
+import com.android.volley.toolbox.Volley
 import com.example.weather.R
 import com.example.weather.adapter.ViewPagerAdapter
 import com.example.weather.databinding.ActivityMainBinding
 import com.example.weather.dialog.SearchDialog
 import com.example.weather.fragment.DailyFragment
 import com.example.weather.fragment.TodayFragment
+import com.example.weather.utils.ApiKey
 import com.example.weather.utils.NetworkHelper
 import com.example.weather.utils.PreferenceHelper
 import com.google.android.gms.location.FusedLocationProviderClient
 import com.google.android.gms.location.LocationServices
+import org.json.JSONArray
+import org.json.JSONException
+import org.json.JSONObject
 import java.util.*
 import java.util.jar.Manifest
 
@@ -58,7 +67,7 @@ class MainActivity : AppCompatActivity(), SearchDialog.SaveListener {
     }
 
     private fun setViewPager() {
-        var viewPagerAdapter: ViewPagerAdapter = ViewPagerAdapter(this)
+        var viewPagerAdapter = ViewPagerAdapter(this)
         binding.viewPager.adapter = viewPagerAdapter
 
         binding.viewPager.registerOnPageChangeCallback(object : ViewPager2.OnPageChangeCallback() {
@@ -92,35 +101,59 @@ class MainActivity : AppCompatActivity(), SearchDialog.SaveListener {
         searchDialog.show(supportFragmentManager, "search")
     }
 
-    override fun save(city: String, days: String) {
-        Log.d(TAG, "save: " + city + "-" + days)
+    override fun save(city: String) {
+        Log.d(TAG, "save: " + city)
+        getCityKey(city)
+    }
 
-        val pref = PreferenceHelper.getPref(this, PreferenceHelper.PREF_KEY)
-        val editor = pref.edit()
-        editor.apply {
-            putString(PreferenceHelper.CITY_KEY, city)
-            putString(PreferenceHelper.DAYS_KEY, days)
-        }.apply()
+    private fun getCityKey(city: String) {
+        val requestQueue = Volley.newRequestQueue(this)
+        val url = ApiKey.getCityKey(city)
+        val stringRequest =
+            StringRequest(Request.Method.GET, url, object : Response.Listener<String> {
+                override fun onResponse(response: String?) {
+                    try {
+                        Log.d("sondeptrai", "onResponse: " + response)
+                        val objArray = JSONArray(response)
+                        if (objArray.length() == 0) {
+                            Toast.makeText(applicationContext, "Can't find this city", Toast.LENGTH_SHORT).show()
+                            return
+                        }
+                        val obj = objArray.getJSONObject(0)
 
-        passDataToViewPager(city, days)
+                        val cityName = obj.getString("LocalizedName")
+                        val countryObj = obj.getJSONObject("Country")
+                        val countryName = countryObj.getString("LocalizedName")
+                        val cityKey = obj.getString("Key")
+
+                        val pref = PreferenceHelper.getPref(applicationContext, PreferenceHelper.PREF_KEY)
+                        val editor = pref.edit()
+                        editor.apply {
+                            putString(PreferenceHelper.CITY_KEY, cityKey)
+                            putString(PreferenceHelper.CITY_NAME, cityName)
+                            putString(PreferenceHelper.COUNTRY_NAME, countryName)
+                        }.apply()
+
+                        passDataToViewPager(cityName, countryName, cityKey)
+                    } catch (e: JSONException) {
+                        throw RuntimeException(e);
+                    }
+                }
+            }, object : Response.ErrorListener {
+                override fun onErrorResponse(error: VolleyError?) {
+                    Log.e(this.toString(), "onErrorResponse: " + error.toString())
+                }
+            })
+        requestQueue.add(stringRequest)
     }
 
     private fun getFrag(position: Int) = supportFragmentManager.findFragmentByTag("f${position}")
 
-    private fun passDataToViewPager(city: String, days: String) {
+    private fun passDataToViewPager(cityName: String, countryName: String, cityKey: String) {
         for (i in 0..1) {
             when (val frag = getFrag(i)) {
-                is TodayFragment -> frag.show(city)
-                is DailyFragment -> frag.show(city, days)
-            }
-        }
-    }
-
-    private fun passDataToViewPager(lat: String, lon: String, address: String) {
-        for (i in 0..1) {
-            when (val frag = getFrag(i)) {
-                is TodayFragment -> frag.show(lat, lon, address)
-                is DailyFragment -> frag.show(lat, lon, address)
+                is TodayFragment -> frag.show(cityName, countryName, cityKey)
+                is DailyFragment -> frag.show(cityName, cityKey)
             }
         }
     }
@@ -144,12 +177,49 @@ class MainActivity : AppCompatActivity(), SearchDialog.SaveListener {
                     val address = geocoder.getFromLocation(it.latitude, it.longitude, 1)
                     Log.d(TAG, "launchMap: " + (address!![0].latitude) + "-" + address[0].longitude + "-" + address!![0].getAddressLine(0))
 
-                    passDataToViewPager(address!![0].latitude.toString(), address[0].longitude.toString(), address!![0].getAddressLine(0))
+                    setDataFromLocation(address!![0].latitude.toString(), address[0].longitude.toString())
                 }
             }
         } else {
             askPermission()
         }
+    }
+
+    fun setDataFromLocation(lat: String, lon: String) {
+        val requestQueue = Volley.newRequestQueue(this)
+        val url = ApiKey.getUrlLocale(lat, lon)
+        val stringRequest =
+            StringRequest(Request.Method.GET, url, object : Response.Listener<String> {
+                override fun onResponse(response: String?) {
+                    try {
+                        Log.d("sondeptrai", "onResponse: Location" + response)
+                        val obj = JSONObject(response)
+                        val cityObj = obj.getJSONObject("ParentCity")
+                        val cityName = cityObj.getString("LocalizedName")
+                        val cityKey = cityObj.getString("Key")
+
+                        val countryObj = obj.getJSONObject("Country")
+                        val countryName = countryObj.getString("LocalizedName")
+
+                        val pref = PreferenceHelper.getPref(applicationContext, PreferenceHelper.PREF_KEY)
+                        val editor = pref.edit()
+                        editor.apply {
+                            putString(PreferenceHelper.CITY_KEY, cityKey)
+                            putString(PreferenceHelper.CITY_NAME, cityName)
+                            putString(PreferenceHelper.COUNTRY_NAME, countryName)
+                        }.apply()
+
+                        passDataToViewPager(cityName, countryName, cityKey)
+                    } catch (e: JSONException) {
+                        throw RuntimeException(e);
+                    }
+                }
+            }, object : Response.ErrorListener {
+                override fun onErrorResponse(error: VolleyError?) {
+                    Log.e(this.toString(), "onErrorResponse: " + error.toString())
+                }
+            })
+        requestQueue.add(stringRequest)
     }
 
     private fun askPermission() {

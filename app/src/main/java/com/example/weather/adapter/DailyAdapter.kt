@@ -1,6 +1,7 @@
 package com.example.weather.adapter
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -31,8 +32,9 @@ class DailyAdapter() : Adapter<WeatherHolder>() {
 
     override fun onBindViewHolder(holder: WeatherHolder, position: Int) {
         Picasso.with(mContext).load(ApiKey.getIconUrl(mList.get(position).icon)).into(holder.mIcon)
-        holder.mDay.text = mList.get(position).day
+        holder.mDate.text = mList.get(position).date
         holder.mTemp.text = mList.get(position).temp
-        holder.mCondition.text = mList.get(position).status
+        holder.mDayStatus.text = mList.get(position).day_status
+        holder.mNightStatus.text = mList.get(position).night_status
     }
 }
