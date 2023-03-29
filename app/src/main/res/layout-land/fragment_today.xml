@@ -4,37 +4,40 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <androidx.constraintlayout.widget.ConstraintLayout
+    android:layout_height="wrap_content">
+    <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="match_parent" >
+        android:layout_height="match_parent"
+        android:orientation="horizontal">
 
         <RelativeLayout
             android:id="@+id/relative"
-            android:layout_width="match_parent"
-            android:layout_height="350dp"
+            android:layout_width="400dp"
+            android:layout_height="250dp"
             android:background="@drawable/night_background"
             app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.0"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent">
+
             <TextView
                 android:id="@+id/city"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Ha Noi"
-                android:textColor="@color/white"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="8dp"
+                android:text="Ha Noi"
+                android:textColor="@color/white"
                 android:textSize="24sp" />
 
             <TextView
                 android:id="@+id/country"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Viet Nam"
-                android:textColor="@color/white"
                 android:layout_below="@+id/city"
                 android:layout_marginStart="16dp"
+                android:text="Viet Nam"
+                android:textColor="@color/white"
                 android:textSize="20sp" />
 
             <TextView
@@ -44,21 +47,21 @@
                 android:layout_below="@+id/country"
                 android:layout_marginStart="16dp"
                 android:layout_marginTop="0dp"
+                android:text="Sarturday, Feb 25"
                 android:textColor="@color/white"
-                android:textSize="16sp"
-                android:text="Sarturday, Feb 25" />
+                android:textSize="16sp" />
 
             <TextView
                 android:id="@+id/condition"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Light Rain"
-                android:textColor="@color/white"
                 android:layout_below="@+id/date"
                 android:layout_marginStart="16dp"
-                android:textStyle="bold"
                 android:layout_marginTop="32dp"
-                android:textSize="16sp" />
+                android:text="Light Rain"
+                android:textColor="@color/white"
+                android:textSize="16sp"
+                android:textStyle="bold" />
 
             <TextView
                 android:id="@+id/temp_condition"
@@ -67,60 +70,55 @@
                 android:layout_alignParentBottom="true"
                 android:layout_marginBottom="1dp"
                 android:padding="16dp"
+                android:text="17°C"
                 android:textColor="@color/white"
-                android:textSize="48sp"
-                android:text="17°C" />
+                android:textSize="48sp" />
 
         </RelativeLayout>
 
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical"
             android:layout_weight="1"
-            android:layout_marginTop="16dp"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintHorizontal_bias="0.0"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/relative"
-            app:layout_constraintVertical_bias="0.0"
-            android:background="@color/white">
+            android:background="@color/white"
+            android:orientation="vertical">
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:layout_marginTop="10dp"
                 android:layout_weight="1"
-                android:layout_marginTop="10dp">
+                android:orientation="horizontal">
+
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
-                    android:padding="20dp"
                     android:layout_weight="1"
-                    android:gravity="center">
+                    android:gravity="center"
+                    android:padding="20dp">
 
                     <ImageView
                         android:id="@+id/thermometer"
                         android:layout_width="0dp"
-                        android:layout_weight="1"
                         android:layout_height="70dp"
                         android:layout_marginEnd="8dp"
-                        android:src="@drawable/thermometer"/>
+                        android:layout_weight="1"
+                        android:src="@drawable/thermometer" />
 
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:layout_weight="3"
-                        android:orientation="vertical"
-                        android:gravity="center">
+                        android:gravity="center"
+                        android:orientation="vertical">
+
                         <TextView
                             android:id="@+id/min_max"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="14sp"
                             android:text="Min - Max"
-                            android:textColor="@color/black"/>
+                            android:textColor="@color/black"
+                            android:textSize="14sp" />
 
                         <TextView
                             android:id="@+id/min_max_temperature"
@@ -128,10 +126,10 @@
                             android:layout_height="wrap_content"
                             android:layout_marginStart="6dp"
                             android:layout_marginTop="5dp"
+                            android:textColor="@color/black"
                             android:textSize="14sp"
                             android:textStyle="bold"
-                            tools:text="10°C - 30°C"
-                            android:textColor="@color/black"/>
+                            tools:text="10°C - 30°C" />
 
                     </LinearLayout>
 
@@ -140,54 +138,55 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:gravity="center"
-                    android:padding="20dp"
-                    android:layout_weight="1">
+                    android:padding="20dp">
 
                     <ImageView
                         android:id="@+id/humidity_img"
                         android:layout_width="0dp"
-                        android:layout_weight="1"
                         android:layout_height="70dp"
                         android:layout_marginEnd="8dp"
-                        android:src="@drawable/humidity"/>
+                        android:layout_weight="1"
+                        android:src="@drawable/humidity" />
 
-                   <LinearLayout
-                       android:layout_width="0dp"
-                       android:layout_height="wrap_content"
-                       android:layout_weight="3"
-                       android:orientation="vertical"
-                       android:gravity="center">
-                       <TextView
-                           android:id="@+id/category"
-                           android:layout_width="wrap_content"
-                           android:layout_height="wrap_content"
-                           android:layout_toEndOf="@+id/humidity_img"
-                           android:textSize="14sp"
-                           android:text="Category"
-                           android:textColor="@color/black"/>
+                    <LinearLayout
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="3"
+                        android:gravity="center"
+                        android:orientation="vertical">
 
-                       <TextView
-                           android:id="@+id/category_value"
-                           android:layout_width="wrap_content"
-                           android:layout_height="wrap_content"
-                           android:layout_marginTop="4dp"
-                           android:textSize="14sp"
-                           android:textStyle="bold"
-                           android:text="Air quality"
-                           android:textColor="@color/black"/>
-                   </LinearLayout>
+                        <TextView
+                            android:id="@+id/category"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_toEndOf="@+id/humidity_img"
+                            android:text="Category"
+                            android:textColor="@color/black"
+                            android:textSize="14sp" />
+
+                        <TextView
+                            android:id="@+id/category_value"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_marginTop="4dp"
+                            android:text="Air quality"
+                            android:textColor="@color/black"
+                            android:textSize="14sp"
+                            android:textStyle="bold" />
+                    </LinearLayout>
 
                 </LinearLayout>
 
             </LinearLayout>
 
             <LinearLayout
-                android:orientation="horizontal"
                 android:layout_width="match_parent"
                 android:layout_height="0dp"
+                android:layout_marginTop="10dp"
                 android:layout_weight="1"
-                android:layout_marginTop="10dp">
+                android:orientation="horizontal">
 
                 <LinearLayout
                     android:layout_width="0dp"
@@ -201,22 +200,23 @@
                         android:layout_width="0dp"
                         android:layout_height="70dp"
                         android:layout_marginEnd="8dp"
-                        android:src="@drawable/sun"
-                        android:layout_weight="1"/>
+                        android:layout_weight="1"
+                        android:src="@drawable/sun" />
 
                     <LinearLayout
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
-                        android:orientation="vertical"
                         android:layout_weight="3"
-                        android:gravity="center">
+                        android:gravity="center"
+                        android:orientation="vertical">
+
                         <TextView
                             android:id="@+id/day"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
                             android:text="Day"
-                            android:textSize="14sp"
-                            android:textColor="@color/black"/>
+                            android:textColor="@color/black"
+                            android:textSize="14sp" />
 
                         <TextView
                             android:id="@+id/day_temp"
@@ -235,16 +235,16 @@
                 <LinearLayout
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
+                    android:layout_weight="1"
                     android:gravity="center"
-                    android:padding="20dp"
-                    android:layout_weight="1">
+                    android:padding="20dp">
 
                     <ImageView
                         android:id="@+id/night"
                         android:layout_width="0dp"
                         android:layout_height="70dp"
-                        android:layout_weight="1"
                         android:layout_marginEnd="8dp"
+                        android:layout_weight="1"
                         android:src="@drawable/ic_night" />
 
                     <LinearLayout
@@ -253,13 +253,14 @@
                         android:layout_weight="3"
                         android:gravity="center"
                         android:orientation="vertical">
+
                         <TextView
                             android:id="@+id/night_txt"
                             android:layout_width="wrap_content"
                             android:layout_height="wrap_content"
-                            android:textSize="14sp"
                             android:text="Night"
-                            android:textColor="@color/black"/>
+                            android:textColor="@color/black"
+                            android:textSize="14sp" />
 
                         <TextView
                             android:id="@+id/night_temp"
@@ -267,13 +268,13 @@
                             android:layout_height="wrap_content"
                             android:layout_marginTop="4dp"
                             android:text="15°C"
+                            android:textColor="@color/black"
                             android:textSize="14sp"
-                            android:textStyle="bold"
-                            android:textColor="@color/black"/>
+                            android:textStyle="bold" />
                     </LinearLayout>
 
                 </LinearLayout>
             </LinearLayout>
         </LinearLayout>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+    </LinearLayout>
 </androidx.core.widget.NestedScrollView>
